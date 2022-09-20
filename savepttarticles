@@ -1,0 +1,121 @@
+import requests
+from bs4 import BeautifulSoup
+import time
+import os
+
+
+# 變更工作資料夾至指定資料夾
+def changesavefolders(originalfolder,newfolder):
+    foldername = os.getcwd()+os.sep+newfolder
+    os.chdir(foldername)
+
+# 恢復至原工作資料夾
+def returnsavefolders(originalfolder):
+    os.chdir(originalfolder)
+    
+# 取得原工作資料夾
+originalfolder = os.getcwd()
+newfolder = 'ptt'
+try:
+    changesavefolders(originalfolder,newfolder)
+except FileNotFoundError:
+    os.chdir('C:\\Users\\201004001\\Python_test\\new\\stock')
+    changesavefolders(originalfolder,newfolder)
+    
+
+# 看板名稱
+brandname0218 = ['Gossiping', 'Job', 'Java', 'Soft_Job','MIS']
+watchnumber = 1
+bn = brandname0218[watchnumber]
+def searchDay(num):
+    if num == 0 :
+        # 不限制搜尋日期
+        nowday = ""
+    else:
+        # 今天的日期
+        nowday = time.strftime("%b %d", time.localtime())
+        # 因日期顯示是2碼,所以在每月10號前,需要多做以下處理
+        if int(nowday[4:]) <10:
+            nowday20220408_1 = time.strftime("%b ",time.localtime())
+            nowday20220408_2 = time.strftime("%d",time.localtime())
+            nowday = nowday20220408_1 + " " +str(int(nowday20220408_2))
+    print(nowday)
+    return nowday
+
+nowDay = searchDay(0)
+        
+# 關鍵字
+keyword = "test"
+# 排除關鍵字
+nokeyword1 = "公告"
+nokeyword2 = "明星臉"
+# 總搜尋頁數
+pages = 10
+# 顯示起始頁數
+pages_start = 0
+# Session會將你送出的requests所收到的cookies全部儲存起來,
+# 並且在發送下一次請求時送出對應的參數。
+r12 = requests.Session()
+payload ={
+    "form:":"bbs/"+bn+"/index.html",
+#     "from":"/bbs/Gossiping/index.html",
+    "yes":"yes"
+}
+
+# 而封包內的參數，則可以加在POST後面，由前述可得知參數為from和yes，並得知參數內容
+r1 = r12.post("https://www.ptt.cc/ask/over18?from=%2Fbbs%2FGossiping%2Findex.html",payload)
+
+
+# url = "https://www.ptt.cc/bbs/Gossiping/index.html"
+
+url = "https://www.ptt.cc/bbs/"+bn+"/index.html"
+
+def allshow(soup_t):
+    text_t = soup_t.find("body").getText()
+    if keyword in text_t:
+        print(text_t)
+        
+def titleshow(soup_t):
+    title_t = soup_t.findall('span',{"class":"article-meta-value"}).getText()
+    if keyword in text_t:
+        print(title_t)
+        
+nowtime = time.strftime('%Y%m%d%H%M%S')
+filename = f'{nowtime}_{bn}.txt'
+with open(filename, 'w', encoding='utf-8') as f:
+        
+    for i in range(pages): #往上爬指定頁數
+        # 正常應該使用requests,但考量系統驗證,所以會改用"requests.Session()",
+        # 也就是之前宣告的r12
+        r = r12.get(url)
+        soup = BeautifulSoup(r.text,"html.parser")
+        sel = soup.select("div.title a")#標題
+        u = soup.select("div.btn-group.btn-group-paging a") #a標籤
+        url = "https://www.ptt.cc"+ u[1]["href"] #上一頁的網址
+        print(i)
+        if i >= pages_start:
+            print("page" + str(i))
+            for s in sel: #印出網址跟標題
+                url_t = "https://www.ptt.cc" + s["href"]
+                r_t = r12.get(url_t)
+                soup_t = BeautifulSoup(r_t.text,"html.parser")
+                text_t = soup_t.find("body").getText()
+                # 僅搜尋當天文章
+                if keyword in text_t and nowDay in text_t:
+                    # 不顯示公告頁
+                    if nokeyword1 in text_t or nokeyword2 in text_t:
+                        pass
+                    # Job版的處理方法
+                    elif watchnumber == 1:
+                        # 不考慮的內容
+                        if "助理" in text_t or "業務" in text_t:
+                            pass
+                        else:
+#                             print(text_t)
+                            f.write(text_t+"\n\n\n")
+                    else:
+#                         print(text_t)
+                        f.write(text_t+"\n\n\n")
+
+f.closed
+returnsavefolders(originalfolder)
