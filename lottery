@@ -1,0 +1,62 @@
+pip install faker
+
+from faker import Faker
+import random,time
+
+if __name__ == '__main__':
+    # 隨機生成一個名單
+    def listrandom(members0120):
+        faker1155 = Faker('zh_TW')
+        list1155 = []
+        # 參與抽獎人數 = members0120
+        for i in range(0,members0120):
+            list1155.append(faker1155.name())
+        return list1155
+
+    # 抽獎(不考慮重抽)
+    def lottery0120(peoples1115,prizes1115):
+    # peoples1115:參與抽獎人數,prizes1115:獎品數量
+        i = 0
+        list1314=[]
+        members0120 = peoples1115
+        while i < prizes1115 :
+            x = random.randint(0,members0120-1)
+            print(list1313[x])
+            list1314.append(list1313[x])
+            list1313.pop(x)
+            members0120 -= 1
+            i += 1
+        return list1314
+
+    # 匯入獎項數及各獎項名額
+    def lotteryTotal0120(peoples1115,prizes1):
+    # peoples1115:參與抽獎人數, prizes1:獎項數
+        prizelist1147 = []
+        # prizelist1147:各獎項名額
+        # luckylist1306 得獎名單
+        luckylist1306 = []
+        for i in range(0,prizes1):
+            prizelist1147.append(i+1)
+            prizelist1147.append(int(input('請輸入第%d獎的獎品數目:' %(i+1))))
+        print(prizelist1147)
+        # 由小獎抽到大獎
+        for i in range(prizes1-1,-1,-1):
+            prizes1115 = prizelist1147[i]
+            print('第%d獎 得獎名單' %(i+1))
+            # 進行抽獎,並取得得獎者名單
+            luckylist1306 += lottery0120(peoples1115,prizes1115)
+            peoples1115 -= prizelist1147[i]
+            # 秒數暫停(以增加刺激感)
+            time.sleep(1)
+        # 得獎人清單,不含奬項
+        print(luckylist1306)
+                                 
+
+peoples1115 = int(input('請輸入參與抽獎人數:'))
+prizes1 =int(input('請輸入獎項數目:'))        
+
+list1313 = listrandom1311(peoples1115)
+# 參與抽獎名單備份
+listcopy1313 = list1313
+
+lotteryTotal0120(peoples1115,prizes1) 
