@@ -1,0 +1,41 @@
+import os
+import re
+import time
+
+print(os.getcwd())
+
+def changeFilename(mytempath0113):
+    mytempath0113 = mytempath0113 + os.sep
+    # 原本資料夾內檔案清單
+    mytemfileList01131 = os.listdir(mytempath0113)
+    # 欲覆蓋的關鍵字
+    mykeyword = 'task_'
+
+    n = 0
+    changeNumber = 1
+    for i in mytemfileList01131:
+        # 原始檔案名
+        oldname0113 = mytemfileList01131[n]
+        # 原檔案名(含路徑)
+        oldFilename0113 = mytempath0113 + oldname0113
+        # 取得檔案修改時間
+        fileChangetime0207 = os.path.getmtime(oldFilename0113)
+        # 正規化規格,不分大小寫
+        renameregex = re.compile(r'%s'%mykeyword,re.I)
+        # 用正規化的方式將"mykeyword"替代成""
+        newname0113 = renameregex.sub("",oldname0113)
+        # 新檔案名(含路徑)
+        newFilename0113 = mytempath0113 + newname0113
+
+        try:
+            os.rename(oldFilename0113,newFilename0113)
+            print('第%d個檔案改變:%s=====>%s'
+                  %(n+1,oldname0113,newname0113))
+            changeNumber += 1
+        except:
+            continue
+        n += 1
+    print('已更改%d個檔案' %changeNumber)
+
+mytempath0113 ='C:\\Users\\...'
+changeFilename(mytempath0113)
