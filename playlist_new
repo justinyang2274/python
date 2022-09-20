@@ -1,0 +1,45 @@
+pip install pytube
+
+from pytube import YouTube, Playlist
+import openpyxl
+import datetime
+
+# 取得當前日期
+nowtime = datetime.datetime.today()
+showtime = nowtime.strftime("%Y%m%d")
+
+listname =('小碎步','Chill')
+listurl = (
+        # 小碎步 
+    'https://www.youtube.com/watch?v=W-dWOKwCVGw&list=PLHNxeM7GVo7pjciOvCVJ6vyt52wcSfIJl',
+        # Chill 
+    'https://www.youtube.com/watch?v=DpMfP6qUSBo&list=PLHNxeM7GVo7rhiCytxjM4ymDTQbW41EYo')
+
+# 新增一個工作簿
+SonglistWB = openpyxl.Workbook()
+
+for i in range(0,len(listname)):
+    print(i,listname[i-1],listurl[i-1])
+    # 匯入清單連結
+    pl =Playlist(listurl[i-1])
+    # 新增工作表
+    sheet = SonglistWB.create_sheet(listname[i-1])
+    
+    j = 0
+    for url in pl.video_urls:
+        try:
+            j += 1
+            yt = YouTube(url)
+            yt11 = (j, yt.title, url)
+            for k in range(0,3):
+                sheet.cell(row=j, column=k+1, value=yt11[k])
+            print('%d. %s %s' %(j,yt.title, url))
+        except:
+            print(f'影片:{yt.title}有問題,跳過!')
+        else:
+            continue
+    # 命名工作簿並儲存
+    SonglistWB.save('%s Songlist.xlsx' %(showtime))
+
+# 命名工作簿並儲存
+SonglistWB.save('%s Songlist.xlsx' %(showtime))
