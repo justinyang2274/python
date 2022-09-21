@@ -1,0 +1,53 @@
+# 僅適合就"產品基本資料檔"的匯出文字樣做比對用
+# 基本上如果欄位沒有變動的話,只有直接複制下方的文字即可進行匯出檔比對
+# 若欄位有變動的話,必須同時對"欄位長度"及"欄位說明"做增減
+
+# 欄位長度
+longlist = ['1', '6', '12', '2','1','30','1','30','30','100']
+
+# 計算長度用
+number = ['1','2','3','4','5','6','7','8','9',' ']
+
+# 欄位說明
+strlist = ["1.首筆2.內容3.尾筆", "廠商代號",
+           "商品代碼(P_KEY)","類別","外包裝條碼類型",
+           "產品別名","產地","產地名稱","規格","其它特色說明"]
+n=0
+# 總長度計算序列
+strlong1 = ''
+# 總長度相對應之部分欄位
+strlong2 = ''
+# 總長度對應各欄位結束位置
+strlong3 = '  '
+# 欄位結束位置
+strnum = 0
+
+print(strlong3)
+for long in longlist:
+    # 依序取得各欄位結束位置
+    strnum += int(longlist[n])
+    # 依序取得各欄位對應之長度
+    for x in range(int(longlist[n])):
+        # 將取得之欄位數依位數加至序列後方
+        nums = number[(x)%10]
+        strlong1 = strlong1 + nums
+    # 判斷欄位所對應之長度是否大於欄位說明之長度(國字一字=長度2)
+    strlistlong = len(strlist[n])*2
+#     print(strlistlong)
+    if int(longlist[n])< strlistlong:
+        strlong2 = strlong2+(" "*int(longlist[n]))
+    else:
+        # 欄位長度大於欄位說明所佔長度時,將欄位說明寫入序列(不足欄位長度的部份,以" "寫入)
+        strlong2 = strlong2 + strlist[n] + (" " * (int(longlist[n])-len(strlist[n]*2)))
+    if int(longlist[n])>3:
+        if strnum >9 and strnum<100:
+            strlong3 = strlong3 + (" "*(int(longlist[n])-2))+ str(strnum) 
+        else:
+            strlong3 = strlong3 + (" "*(int(longlist[n])-3))+ str(strnum) 
+    else:
+        strlong3 = strlong3+(" "*int(longlist[n]))
+    n += 1
+    
+print(strlong1)
+print(strlong2)
+print(strlong3)
