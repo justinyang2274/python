@@ -1,0 +1,115 @@
+import requests
+import urllib
+import os
+import time
+
+
+# 變更工作資料夾至指定資料夾
+def changesavefolders(originalfolder,newfolder):
+    foldername = os.getcwd()+os.sep+newfolder
+    print(originalfolder)
+    os.chdir(foldername)
+    print(os.getcwd())
+
+# 恢復至原工作資料夾
+def returnsavefolders(originalfolder):
+    print(os.getcwd())
+    os.chdir(originalfolder)
+    print(os.getcwd())
+    
+# 取得原工作資料夾
+originalfolder = os.getcwd()
+newfolder = 'shopee'
+try:
+    changesavefolders(originalfolder,newfolder)
+except FileNotFoundError:
+    os.chdir('C:\\Users\\201004001\\Python_test\\new\\stock')
+    changesavefolders(originalfolder,newfolder)
+    
+"""
+後來發現如果短時間太頻繁的送出請求，會被伺服器阻擋，貌似正常獲得資料，但其實仔細看會發現資料有誤，例如價格很明顯不正確等等。
+"""
+
+def findprice0216(keyword):
+    headers = {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36 Edg/88.0.705.68',
+        'x-api-source': 'pc',
+        'referer': f'https://shopee.tw/search?keyword={urllib.parse.quote(keyword)}'
+    }
+
+    s = requests.Session()
+    url = 'https://shopee.tw/api/v4/search/product_labels'
+    r = s.get(url, headers=headers)
+    base_url = 'https://shopee.tw/api/v4/search/search_items/?'
+
+    query = f"by=relevancy&keyword={keyword}&limit=100&newest=0&order=desc&page_type=search&version=2"
+    
+    url = base_url + '?' + query
+    r = s.get(url, headers=headers)
+    if r.status_code == requests.codes.ok:
+        data = r.json()
+        # 檔案名稱(現在時間+關鍵字)
+        nowtime = time.strftime('%Y%m%d%H%M%S')
+        filename = f'{keyword}_{nowtime}.txt'
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(r.text)
+            n = 0
+            keyword1 = 'itemid'
+            for keyword in data['items']:
+                # 商品ID
+                products0215 = data['items'][n]['itemid']
+                # 賣場ID
+                shops0215 =data['items'][n]['shopid']
+                # 商品網址
+                website0215 = f'{n+1}. https://shopee.tw/product/{shops0215}/{products0215}'
+                print(website0215)
+                f.write(website0215+"\n")
+                # 商品名稱
+                itemname0216 = data['items'][n]['item_basic']['name']
+                print(itemname0216)
+                f.write(itemname0216+"\n")
+                # 銷售次數
+                soldtime0216 = str(data['items'][n]['item_basic']['historical_sold'])
+                # 售價
+                price0216 = str(data['items'][n]['item_basic']['price']/100000)
+                print(f'售價:{price0216}元;銷售:{soldtime0216}次')
+                f.write(f'售價:{price0216}元;銷售:{soldtime0216}次'+"\n\n")
+                n += 1
+        f.closed
+
+
+def listfind(allkeyword):
+    searchtime = 0
+    for keyword in allkeyword:
+        keyword = allkeyword[searchtime]
+        findprice0216(keyword)
+        time.sleep(60)
+        searchtime += 1
+        print("")
+        print("")
+
+# 搜尋關鍵字
+allkeyword1 = ['7-11大拿鐵', '全家大美式', '死亡筆記本書盒', '藍色時期8首刷限定' ]
+
+allkeyword2 = ['獵人36', 'SAMSUNG WATHC4 R860','戀上換裝娃娃']
+
+allkeyword3 = ""
+# 考量到要單獨搜索,所以分列allkeyword1、allkeyword2
+# allkeyword = allkeyword2+allkeyword1
+
+def listsfind(lists,allkeyword1,allkeyword2,allkeyword3):
+    if lists == 1:
+        print("請輸入關鍵字:")
+        allkeyword3 = input()
+        findprice0216(allkeyword3)
+    elif lists == 2:
+        listfind(allkeyword2)
+    else:
+        listfind(allkeyword1)
+        time.sleep(600)
+        listfind(allkeyword2)
+# 欲執行的詢價方案:1-獨立、2-僅列表2、3-列表1及列表2
+listsfind(3,allkeyword1,allkeyword2,allkeyword3)
+
+    
+returnsavefolders(originalfolder)
